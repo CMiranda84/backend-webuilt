@@ -3,18 +3,34 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User.model");
 const isAuthenticated = require("../middlewares/isAuthenticated");
+const fileUploader = require("../config/cloudinary.config.js");
 const SALT = 12;
 
-router.post("/signup", async (req, res, next) => {
+router.post("/signup", fileUploader.single("image"), async (req, res, next) => {
   try {
     const { email, password } = req.body;
+    const filePath = req.file.path;
+    if (!password) {
+      return res.status(400).json({ message: "password is required" });
+    }
+
     const foundUser = await User.findOne({ email });
     if (foundUser) {
       return res.status(400).json({ message: "This email is already used." });
     }
+    console.log(req.body);
     const hashedPassword = await bcrypt.hash(password, SALT);
-    const createdUser = await User.create({ email, password: hashedPassword });
-    res.status(201).json({ message: "Account created.", id: createdUser._id });
+
+    const createdUser = await User.create({
+      email,
+      password: hashedPassword,
+      image: filePath,
+    });
+
+    res.status(201).json({
+      message: "Account created.",
+      id: createdUser._id,
+    });
   } catch (error) {
     next(error);
   }

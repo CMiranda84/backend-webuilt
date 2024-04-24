@@ -1,4 +1,5 @@
 const router = require("express").Router()
+const isAuthenticated = require("../middlewares/isAuthenticated.js");
 const Comment = require("../models/Comment.model.js");
 
 
@@ -12,21 +13,25 @@ const Comment = require("../models/Comment.model.js");
 //         next(error)
 //     }
 // })
+router.use(isAuthenticated)
 
-router.post("/:projectId", async (req, res, next)=>
+router.post("/:projectId", isAuthenticated, async (req, res, next)=>
 {
     try {
-        const newComment = await Comment.create(req.body);
+		const text = req.body.text
+		const projectId= req.params.projectId
+		const user = req.currentUserId 
+        const newComment = await Comment.create({text, user, project: projectId});
         res.status(201).json(newComment)
         
     } catch (error) {
         next(error)
     }
 })
-router.delete("/:commentId", async (req, res, next) => {
+router.delete("/:commentId", isAuthenticated, async (req, res, next) => {
 	try {
 		await Comment.findOneAndDelete({
-			_id: req.params.commentId,
+			_id: req.params.commentId, user: req.currentUserId,
 		})
 		res.sendStatus(204)
 	} catch (error) {

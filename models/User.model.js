@@ -14,7 +14,9 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: [true, 'Password is required.']
-    }
+    },
+    image: String,
+    role : { type: String, enum : ["worker", "client"]}
   },
   {
     // this second object adds extra properties: `createdAt` and `updatedAt`    
@@ -24,4 +26,4 @@ const userSchema = new Schema(
 
 const User = model("User", userSchema);
 
-module.exports = User;
+module.exports = User

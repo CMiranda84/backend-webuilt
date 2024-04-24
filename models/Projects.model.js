@@ -1,11 +1,13 @@
 const { Schema, model} = require("mongoose");
 
 const ProjectSchema = new Schema({
+    user:{
+			type: Schema.Types.ObjectId,
+			ref: "User",
+		},
 title : String,
-// otherNames : [String],
 image : String,
 description : String,
-// publishDate : Date,
 company: String,
 price : Number,
 duration : Number,
