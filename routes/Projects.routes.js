@@ -5,17 +5,32 @@ const isAuthenticated = require("../middlewares/isAuthenticated.js");
 const isWorker = require("../middlewares/isWorker.js");
 const fileUploader = require("../config/cloudinary.config.js")
 
-
-// router.use(isAuthenticated)
-// route to get all projects
 router.get("/", async (req, res, next) => {
   try {
-    const projects = await Project.find();
+    let query = {}; // Inicializa a query como um objeto vazio
+
+    if (req.query.name_like) {
+      // Verifica se há um parâmetro de consulta 'name_like'
+      query.title = { $regex: req.query.name_like, $options: "i" }; // Usa expressão regular para pesquisar por título que contenha a string fornecida, sem diferenciar maiúsculas de minúsculas
+    }
+
+    const projects = await Project.find(query); // Aplica a query para buscar projetos
     res.json(projects);
   } catch (error) {
     next(error);
   }
 });
+// router.use(isAuthenticated)
+// route to get all projects
+
+// router.get("/", async (req, res, next) => {
+//   try {
+//     const projects = await Project.find();
+//     res.json(projects);
+//   } catch (error) {
+//     next(error);
+//   }
+// });
 /////// route to create new project                        ////// array("images", 5)
 router.post("/", isAuthenticated, isWorker, fileUploader.single("image"), async (req, res, next) => {
   const { title, description, company, price, duration } = req.body;
