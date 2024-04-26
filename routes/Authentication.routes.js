@@ -8,7 +8,7 @@ const SALT = 12;
 
 router.post("/signup", fileUploader.single("image"), async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body;
     const filePath = req.file.path;
     if (!password) {
       return res.status(400).json({ message: "password is required" });
@@ -22,6 +22,7 @@ router.post("/signup", fileUploader.single("image"), async (req, res, next) => {
     const hashedPassword = await bcrypt.hash(password, SALT);
 
     const createdUser = await User.create({
+      name,
       email,
       password: hashedPassword,
       image: filePath,
